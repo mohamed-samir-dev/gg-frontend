@@ -22,7 +22,6 @@ export default function CartDrawer() {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    city: 'القاهرة',
     address: '',
     notes: '',
   });
@@ -50,7 +49,7 @@ export default function CartDrawer() {
       const orderPayload = {
         name: formData.name,
         phone: formData.phone,
-        city: formData.city,
+        city: '', // سيتم استخراجها من العنوان أو تركها فارغة
         address: formData.address,
         country: isSAR ? 'SA' : 'EG',
         currency: cartCurrency,
@@ -288,68 +287,20 @@ export default function CartDrawer() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">المحافظة / المدينة *</label>
-                    <select
-                      value={formData.city}
-                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
-                    >
-                      {/* مصر */}
-                      <optgroup label="🇪🇬 مصر">
-                        <option>القاهرة</option>
-                        <option>الجيزة</option>
-                        <option>البحيرة</option>
-                        <option>الشرقية</option>
-                        <option>الدقهلية</option>
-                        <option>الإسكندرية</option>
-                        <option>الإسماعيلية</option>
-                        <option>النوبارية ووادى النطرون</option>
-                        <option>المنيا</option>
-                        <option>أسيوط</option>
-                        <option>سوهاج</option>
-                        <option>قنا والأقصر</option>
-                        <option>محافظة مصرية أخرى</option>
-                      </optgroup>
-                      {/* السعودية */}
-                      <optgroup label="🇸🇦 السعودية">
-                        <option>الرياض</option>
-                        <option>جدة</option>
-                        <option>مكة المكرمة</option>
-                        <option>المدينة المنورة</option>
-                        <option>الدمام</option>
-                        <option>الخبر</option>
-                        <option>الظهران</option>
-                        <option>أبها</option>
-                        <option>تبوك</option>
-                        <option>القصيم - بريدة</option>
-                        <option>حائل</option>
-                        <option>الطائف</option>
-                        <option>الجوف - سكاكا</option>
-                        <option>جازان</option>
-                        <option>نجران</option>
-                        <option>الباحة</option>
-                        <option>ينبع</option>
-                        <option>الأحساء - الهفوف</option>
-                        <option>القطيف</option>
-                        <option>عرعر</option>
-                        <option>خميس مشيط</option>
-                        <option>مدينة سعودية أخرى</option>
-                      </optgroup>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">المنطقة / المركز *</label>
-                    <input
-                      type="text"
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">العنوان الكامل بالتفاصيل *</label>
+                  <div className="relative">
+                    <MapPin className="w-4 h-4 text-gray-400 absolute right-3 top-3" />
+                    <textarea
                       required
-                      placeholder={isSAR ? "مثال: حي النخيل" : "مثال: كوم حمادة"}
+                      rows={3}
+                      placeholder={isSAR ? "مثال: الرياض - حي النخيل - شارع الملك عبدالعزيز - بجوار مزرعة النخيل" : "مثال: البحيرة - كوم حمادة - قرية الجزيرة الخضراء - بجوار مزرعة السلام"}
                       value={formData.address}
                       onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="w-full pr-9 pl-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
                     />
                   </div>
+                  <p className="text-xs text-gray-500 mt-1">يرجى كتابة العنوان كاملاً: المحافظة، المدينة/المركز، القرية/الحي، ومعلم قريب</p>
                 </div>
 
                 <div>

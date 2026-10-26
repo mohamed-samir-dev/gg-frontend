@@ -206,35 +206,7 @@ export default function PrintOrderPage() {
           boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
         }}
       >
-        {/* ترويسة الشركة الرسمية */}
-        {company.header ? (
-          <img
-            src={company.header}
-            alt="header"
-            style={{ width: '100%', height: 'auto', maxHeight: 85, objectFit: 'contain', marginBottom: 4 }}
-          />
-        ) : (
-          <div
-            style={{
-              background: 'linear-gradient(135deg, #064e3b, #047857)',
-              color: 'white',
-              padding: '10px 18px',
-              borderRadius: 10,
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: 6,
-            }}
-          >
-            <div>
-              <div style={{ fontSize: 18, fontWeight: 900 }}>شركة جرين لاين للأسمدة الزراعية والمخصبات</div>
-              <div style={{ fontSize: 11, color: '#a7f3d0' }}>المتجر الرسمي لتجارة وتوريد الأسمدة ومحسنات التربة</div>
-            </div>
-            <div style={{ textAlign: 'left', fontSize: 11, color: '#ecfdf5' }} dir="ltr">
-              GREEN LINE FERTILIZERS
-            </div>
-          </div>
-        )}
+
 
         {/* عنوان الفاتورة والعقد */}
         <div style={{ textAlign: 'center', marginBottom: 6 }}>
@@ -290,6 +262,10 @@ export default function PrintOrderPage() {
                 <span style={{ color: C1, fontWeight: 700 }}>العنوان بالتفصيل: </span>
                 {order.address}
               </div>
+              <div style={{ wordBreak: 'break-word' }}>
+                <span style={{ color: C1, fontWeight: 700 }}>رقم الطلب: </span>
+                {order.orderId}
+              </div>
             </div>
           </div>
 
@@ -339,14 +315,6 @@ export default function PrintOrderPage() {
               <div style={{ wordBreak: 'break-word' }}>
                 <span style={{ color: C1, fontWeight: 700 }}>اسم المؤسسة: </span>
                 {company.nameAr || 'شركة جرين لاين للأسمدة الزراعية'}
-              </div>
-              <div style={{ wordBreak: 'break-word' }}>
-                <span style={{ color: C1, fontWeight: 700 }}>سجل تجاري / ترخيص: </span>
-                {company.taxNumber || '1010569266 (معتمد زراعياً)'}
-              </div>
-              <div style={{ wordBreak: 'break-word' }}>
-                <span style={{ color: C1, fontWeight: 700 }}>المستودعات المركزية: </span>
-                {company.addressAr || 'طريق مصر الإسكندرية الصحراوي'}
               </div>
               <div style={{ wordBreak: 'break-word' }}>
                 <span style={{ color: C1, fontWeight: 700 }}>هاتف خدمة العملاء: </span>
@@ -548,105 +516,6 @@ export default function PrintOrderPage() {
         </div>
 
         {/* نص الإقرار والموافقة */}
-        <div
-          style={{
-            textAlign: 'center',
-            fontSize: 10.5,
-            fontWeight: 700,
-            color: '#064e3b',
-            lineHeight: 1.45,
-            marginTop: 8,
-            marginBottom: 4,
-          }}
-        >
-          بناءً على ما سبق، يُقرّ الطرفان بصحة البيانات والكميات الواردة في هذه الفاتورة، والتزام كل طرف بما يترتب عليه من حقوق والتزامات.
-        </div>
-
-        {/* التوقيعات والأختام */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-around',
-            marginBottom: 4,
-            marginTop: 20,
-          }}
-        >
-          {/* توقيع العميل والمستلم */}
-          <div
-            style={{
-              fontSize: 11.5,
-              color: C2,
-              textAlign: 'right',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 3,
-            }}
-          >
-            <div style={{ fontWeight: 900, fontSize: 13, color: C1 }}>توقيع العميل / المستلم</div>
-            <div>
-              <span style={{ color: C1, fontWeight: 700 }}>الاسم: </span>
-              {order.customer}
-            </div>
-            <div>
-              <span style={{ color: C1, fontWeight: 700 }}>التاريخ: </span>
-              {new Date().toLocaleDateString('ar-SA')}
-            </div>
-            <div>
-              <span style={{ color: C1, fontWeight: 700 }}>التوقيع: </span>
-              ................................................
-            </div>
-          </div>
-
-          {/* توقيع وخاتم شركة جرين لاين */}
-          <div
-            style={{
-              fontSize: 11.5,
-              color: C2,
-              textAlign: 'right',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 3,
-              position: 'relative',
-            }}
-          >
-            {/* ختم الشركة الرسمي المعتمد */}
-            <img
-              src={company.stamp || '/stamp.svg'}
-              alt="ختم جرين لاين"
-              style={{
-                position: 'absolute',
-                top: -30,
-                left: -110,
-                height: 155,
-                width: 155,
-                objectFit: 'contain',
-                opacity: 0.88,
-                zIndex: 2,
-                transform: 'rotate(-5deg)',
-              }}
-            />
-            <div style={{ fontWeight: 900, fontSize: 13, color: C1 }}>توقيع وخاتم إدارة جرين لاين</div>
-            <div>
-              <span style={{ color: C1, fontWeight: 700 }}>المفوض بالتوقيع: </span>
-              إدارة التوريدات والمبيعات
-            </div>
-            <div>
-              <span style={{ color: C1, fontWeight: 700 }}>التاريخ: </span>
-              {new Date(order.createdAt).toLocaleDateString('ar-SA')}
-            </div>
-            <div style={{ fontSize: 10.5, color: '#047857', fontWeight: 600 }}>
-              (معتمد ومختوم إلكترونياً بختم المنشأة)
-            </div>
-          </div>
-        </div>
-
-        {/* الفوتر السفلي */}
-        <div style={{ marginTop: 24, textAlign: 'center' }}>
-          <div style={{ borderTop: `2px solid ${C4}`, marginBottom: 6 }} />
-          <div style={{ fontSize: 9.5, color: '#065f46', fontWeight: 600 }}>
-            شركة جرين لاين للأسمدة والمخصبات الزراعية • ترخيص زراعي: 1010569266 • هاتف: +20 155 245 6445 • طريق مصر الإسكندرية الصحراوي
-          </div>
-        </div>
       </div>
     </>
   );

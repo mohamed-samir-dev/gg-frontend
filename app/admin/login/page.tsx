@@ -138,15 +138,6 @@ export default function AdminLoginPage() {
           </button>
         </form>
 
-        {/* Credentials Reminder Box */}
-        <div className="p-3 bg-emerald-50/80 rounded-xl border border-emerald-200/80 text-[11px] text-emerald-950 space-y-1">
-          <div className="font-bold text-emerald-800">بيانات الدخول الافتراضية:</div>
-          <div className="flex justify-between font-mono" dir="ltr">
-            <span>User: <strong>admin</strong></span>
-            <span>Password: <strong>admin123</strong></span>
-          </div>
-        </div>
-
         {/* Back to store */}
         <div className="text-center pt-2">
           <Link
