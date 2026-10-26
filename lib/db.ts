@@ -63,7 +63,7 @@ const productSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   priceSAR: { type: Number },
   priceEGP: { type: Number },
-  currency: { type: String, default: 'SAR' },
+  currency: { type: String, default: 'EGP' },
   weight: { type: String },
   tag: { type: String },
   color: { type: String },

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ProductType } from '@/lib/products-data';
+import { ProductType, formatProductPrice } from '@/lib/products-data';
 import { useCart } from '@/lib/cart-context';
 import { ShoppingCart, Check, Plus, Minus, Send, Truck, ShieldCheck } from 'lucide-react';
 
@@ -27,7 +27,7 @@ export default function ProductDetailClient({ product }: Props) {
   };
 
   const handleWhatsApp = () => {
-    const msg = `مرحباً، أود طلب سماد "${product.name}" (${product.formula})%0Aالكمية المطلوبة: ${quantity} عبوة (${product.weight})%0Aالإجمالي: ${totalPrice.toLocaleString()} ${currencyLabel}%0Aيرجى الإفادة بإمكانية الشحن للمزرعة.`;
+    const msg = `مرحباً، أود طلب سماد "${product.name}" (${product.formula})%0Aالكمية المطلوبة: ${quantity} عبوة (${product.weight})%0Aالإجمالي: ${formatProductPrice(totalPrice)} ${currencyLabel}%0Aيرجى الإفادة بإمكانية الشحن للمزرعة.`;
     window.open(`https://wa.me/201552456445?text=${msg}`, '_blank');
   };
 
@@ -41,7 +41,7 @@ export default function ProductDetailClient({ product }: Props) {
           </span>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl sm:text-4xl font-black text-emerald-800">
-              {price.toLocaleString()}
+              {formatProductPrice(price)}
             </span>
             <span className="text-sm font-bold text-stone-600">{currencyFull}</span>
           </div>
@@ -50,7 +50,7 @@ export default function ProductDetailClient({ product }: Props) {
         {quantity > 1 && (
           <div className="bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-200 text-right">
             <span className="text-[11px] text-stone-500 block">إجمالي {quantity} عبوات:</span>
-            <span className="text-lg font-black text-emerald-800">{totalPrice.toLocaleString()} {currencyLabel}</span>
+            <span className="text-lg font-black text-emerald-800">{formatProductPrice(totalPrice)} {currencyLabel}</span>
           </div>
         )}
       </div>

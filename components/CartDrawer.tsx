@@ -2,13 +2,16 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { useCart } from '@/lib/cart-context';
+import { formatProductPrice } from '@/lib/products-data';
 import { X, Plus, Minus, Trash2, ShoppingBag, ArrowLeft, CheckCircle2, Phone, MapPin, User, Send, CreditCard, Truck } from 'lucide-react';
 
 // عنوان الـ Backend الحقيقي (Express) - من متغير البيئة
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
 
 export default function CartDrawer() {
+  const pathname = usePathname();
   const { items, removeFromCart, updateQuantity, clearCart, totalPrice, isCartOpen, setIsCartOpen } = useCart();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -19,7 +22,7 @@ export default function CartDrawer() {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    city: 'الرياض',
+    city: 'القاهرة',
     address: '',
     notes: '',
   });
@@ -28,6 +31,7 @@ export default function CartDrawer() {
   const cartCurrency = isSAR ? 'SAR' : 'EGP';
   const currencyLabel = isSAR ? 'ر.س' : 'ج.م';
 
+  if (pathname?.startsWith('/admin')) return null;
   if (!isCartOpen) return null;
 
   const handleSubmitOrder = async (e: React.FormEvent) => {
@@ -42,7 +46,7 @@ export default function CartDrawer() {
       // مفتاح idempotency لمنع تكرار الطلب
       const idempotencyKey = `order-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
-      // إرسال الطلب للـ Backend الحقيقي (Express)
+      // إعداد بيانات الطلب المتكاملة
       const orderPayload = {
         name: formData.name,
         phone: formData.phone,
@@ -51,49 +55,68 @@ export default function CartDrawer() {
         country: isSAR ? 'SA' : 'EG',
         currency: cartCurrency,
         paymentMethod,
+        notes: formData.notes,
+        totalAmount: totalPrice,
         items: items.map(i => ({
           id: i.product.id,
+          name: i.product.name,
+          price: i.product.currency === 'SAR' ? (i.product.priceSAR ?? i.product.price) : (i.product.priceEGP ?? i.product.price),
+          weight: i.product.weight,
           qty: i.quantity,
         })),
       };
 
-      const res = await fetch(`${BACKEND_URL}/api/orders`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Idempotency-Key': idempotencyKey,
-        },
-        body: JSON.stringify(orderPayload),
-      });
+      let res: Response | null = null;
+      let result: any = null;
 
-      const result = await res.json();
+      // محاولة الإرسال للـ Express Backend أولاً
+      try {
+        res = await fetch(`${BACKEND_URL}/api/orders`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Idempotency-Key': idempotencyKey,
+          },
+          body: JSON.stringify(orderPayload),
+        });
+        if (res.ok) {
+          result = await res.json();
+        }
+      } catch (backendErr) {
+        console.warn('Backend unavailable, falling back to Next.js API route:', backendErr);
+      }
 
-      if (!res.ok) {
-        alert(result.message || result.error || 'حدث خطأ أثناء إتمام الطلب، يرجى المحاولة لاحقاً');
-        return;
+      // إذا تعذر الوصول للـ Backend أو أعطى خطأ، استخدم Next.js API مباشرة
+      if (!result) {
+        const nextRes = await fetch('/api/orders', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Idempotency-Key': idempotencyKey,
+          },
+          body: JSON.stringify(orderPayload),
+        });
+        result = await nextRes.json();
+        if (!nextRes.ok) {
+          alert(result.error || result.message || 'حدث خطأ أثناء إتمام الطلب، يرجى المحاولة لاحقاً');
+          return;
+        }
       }
 
       // إذا كانت طريقة الدفع كاشير وفيه رابط جلسة → وجّه المستخدم لصفحة الدفع
       if (paymentMethod === 'kashier' && result.kashier?.sessionUrl) {
         clearCart();
-        // حفظ orderId للرجوع إليه بعد الدفع
         localStorage.setItem('pendingKashierOrderId', result.orderId);
         window.location.href = result.kashier.sessionUrl;
         return;
       }
 
-      // الدفع عند الاستلام - أظهر شاشة التأكيد
+      // الدفع عند الاستلام أو اكتمال الحفظ بنجاح
       setOrderComplete(result);
       clearCart();
-    } catch (err) {
-      console.error(err);
-      // Fallback completion for user peace of mind
-      const mockOrderId = 'GL-' + Math.floor(100000 + Math.random() * 900000);
-      setOrderComplete({
-        orderId: mockOrderId,
-        message: 'تم استلام طلبك بنجاح وسيتواصل معك مهندس جرين لاين لتأكيد التوصيل',
-      });
-      clearCart();
+    } catch (err: any) {
+      console.error('Submit order error:', err);
+      alert('تعذر استلام الطلب، يرجى التأكد من الاتصال بالإنترنت والمحاولة مجدداً');
     } finally {
       setIsSubmitting(false);
     }
@@ -104,10 +127,10 @@ export default function CartDrawer() {
       .map(i => {
         const itemP = i.product.currency === 'SAR' ? (i.product.priceSAR ?? i.product.price) : (i.product.priceEGP ?? i.product.price);
         const itemCurr = i.product.currency === 'SAR' ? 'ر.س' : 'ج.م';
-        return `• ${i.product.name} (${i.product.weight}) × ${i.quantity} = ${itemP * i.quantity} ${itemCurr}`;
+        return `• ${i.product.name} (${i.product.weight}) × ${i.quantity} = ${formatProductPrice(itemP * i.quantity)} ${itemCurr}`;
       })
       .join('%0A');
-    const msg = `مرحباً جرين لاين للأسمدة الزراعية،%0Aأود تأكيد طلب الأسمدة التالي:%0A${itemsSummary}%0A%0A*الإجمالي:* ${totalPrice} ${currencyLabel}%0Aالاسم: ${encodeURIComponent(formData.name || 'عميل جرين لاين')}%0Aالهاتف: ${encodeURIComponent(formData.phone || '')}%0Aالعنوان: ${encodeURIComponent(formData.address || '')}`;
+    const msg = `مرحباً جرين لاين للأسمدة الزراعية،%0Aأود تأكيد طلب الأسمدة التالي:%0A${itemsSummary}%0A%0A*الإجمالي:* ${formatProductPrice(totalPrice)} ${currencyLabel}%0Aالاسم: ${encodeURIComponent(formData.name || 'عميل جرين لاين')}%0Aالهاتف: ${encodeURIComponent(formData.phone || '')}%0Aالعنوان: ${encodeURIComponent(formData.address || '')}`;
     window.open(`https://wa.me/201552456445?text=${msg}`, '_blank');
   };
 
@@ -343,7 +366,7 @@ export default function CartDrawer() {
                 <div className="pt-2 border-t border-gray-100">
                   <div className="flex justify-between items-center text-sm font-bold text-gray-800 mb-3">
                     <span>إجمالي القيمة:</span>
-                    <span className="text-emerald-700 text-lg">{totalPrice.toLocaleString()} {currencyLabel}</span>
+                    <span className="text-emerald-700 text-lg">{formatProductPrice(totalPrice)} {currencyLabel}</span>
                   </div>
                   <button
                     type="submit"
@@ -391,7 +414,7 @@ export default function CartDrawer() {
                       <h4 className="text-sm font-bold text-gray-900 truncate">{item.product.name}</h4>
                       <p className="text-xs text-gray-500 truncate">{item.product.formula} · {item.product.weight}</p>
                       <div className="text-sm font-bold text-emerald-700 mt-1">
-                        {(item.product.currency === 'SAR' ? (item.product.priceSAR ?? item.product.price) : (item.product.priceEGP ?? item.product.price)).toLocaleString()} {item.product.currency === 'SAR' ? 'ر.س' : 'ج.م'}
+                        {formatProductPrice(item.product.currency === 'SAR' ? (item.product.priceSAR ?? item.product.price) : (item.product.priceEGP ?? item.product.price))} {item.product.currency === 'SAR' ? 'ر.س' : 'ج.م'}
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-2">
@@ -429,7 +452,7 @@ export default function CartDrawer() {
             <div className="p-4 sm:p-6 bg-gray-50 border-t border-gray-200 space-y-3">
               <div className="flex justify-between items-center text-sm text-gray-600">
                 <span>إجمالي المنتجات ({items.reduce((s, i) => s + i.quantity, 0)} عبوة):</span>
-                <span className="font-bold text-gray-900">{totalPrice.toLocaleString()} {currencyLabel}</span>
+                <span className="font-bold text-gray-900">{formatProductPrice(totalPrice)} {currencyLabel}</span>
               </div>
               <div className="flex justify-between items-center text-xs text-emerald-700">
                 <span>الشحن والتوصيل للمزرعة:</span>
@@ -437,7 +460,7 @@ export default function CartDrawer() {
               </div>
               <div className="pt-2 border-t border-gray-200 flex justify-between items-center text-base font-extrabold text-gray-900">
                 <span>الإجمالي التقريبي:</span>
-                <span className="text-xl text-emerald-800">{totalPrice.toLocaleString()} {currencyLabel}</span>
+                <span className="text-xl text-emerald-800">{formatProductPrice(totalPrice)} {currencyLabel}</span>
               </div>
               <button
                 onClick={() => setIsCheckingOut(true)}

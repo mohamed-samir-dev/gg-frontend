@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ProductType } from '@/lib/products-data';
+import { ProductType, formatProductPrice } from '@/lib/products-data';
 import { useCart } from '@/lib/cart-context';
 import { ShoppingCart, Eye, Check, Leaf, Sparkles, Scale } from 'lucide-react';
 import ProductModal from './ProductModal';
@@ -113,7 +113,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 <span className="text-[10px] text-stone-400 block font-semibold">السعر للعبوة</span>
                 <div className="flex items-baseline gap-1">
                   <span className="text-2xl font-black text-emerald-700">
-                    {price.toLocaleString()}
+                    {formatProductPrice(price)}
                   </span>
                   <span className="text-xs font-bold text-stone-500">{currencyLabel}</span>
                 </div>

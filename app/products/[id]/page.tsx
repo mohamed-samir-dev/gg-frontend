@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getFertilizerProducts, getFertilizerProductById } from '@/lib/db';
+import { formatProductPrice } from '@/lib/products-data';
 import ProductDetailClient from './ProductDetailClient';
 import { Sprout, ArrowRight, ShieldCheck, Truck, Scale, Leaf, CheckCircle2 } from 'lucide-react';
 
@@ -174,7 +175,7 @@ export default async function ProductDetailPage({ params }: Props) {
                     <p className="text-xs text-stone-500">{rel.formula}</p>
                     <div className="flex items-center justify-between mt-2">
                       <span className="text-sm font-black text-emerald-700">
-                        {(rel.currency === 'SAR' ? (rel.priceSAR ?? rel.price) : (rel.priceEGP ?? rel.price)).toLocaleString()} {rel.currency === 'SAR' ? 'ر.س' : 'ج.م'}
+                        {formatProductPrice(rel.currency === 'SAR' ? (rel.priceSAR ?? rel.price) : (rel.priceEGP ?? rel.price))} {rel.currency === 'SAR' ? 'ر.س' : 'ج.م'}
                       </span>
                       <Link href={`/products/${rel.id}`} className="text-xs text-stone-600 hover:text-emerald-700 font-bold underline">
                         التفاصيل

@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ProductType } from '@/lib/products-data';
+import { ProductType, formatProductPrice } from '@/lib/products-data';
 import { useCart } from '@/lib/cart-context';
 import { X, ShoppingCart, Leaf, CheckCircle2, ShieldCheck, Scale, Send } from 'lucide-react';
 
@@ -107,7 +107,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                 <div>
                   <span className="text-xs text-stone-400 block font-semibold">سعر الشيكارة / العبوة</span>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-black text-emerald-700">{price.toLocaleString()}</span>
+                    <span className="text-3xl font-black text-emerald-700">{formatProductPrice(price)}</span>
                     <span className="text-sm font-bold text-stone-500">{currencyLabel}</span>
                   </div>
                 </div>
