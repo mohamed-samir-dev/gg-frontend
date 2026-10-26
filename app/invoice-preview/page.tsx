@@ -84,11 +84,6 @@ export default function InvoicePreviewPage() {
       <Banknote key="حالة السداد" size={18} color={C4} />,
     ],
     [
-      'رقم الفاتورة الرسمية',
-      order.invoiceNumber,
-      <FileText key="رقم الفاتورة" size={18} color={C4} />,
-    ],
-    [
       'رقم أمر الطلب',
       order.orderId,
       <Hash key="رقم الطلب" size={18} color={C4} />,
