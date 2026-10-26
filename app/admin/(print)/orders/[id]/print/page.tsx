@@ -140,10 +140,30 @@ export default function PrintOrderPage() {
   const C4 = '#059669'; // Accent Green
   const currencyLabel = company.currencyAr || 'ريال';
 
+  // سعر الصرف: 1 ريال = 15.03 جنيه مصري
+  const exchangeRate = 15.03;
+  
+  const formatDateArabic = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const day = date.getDate();
+    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+    return `${day} ${month} ${year}`;
+  };
+
+  const deliveryDate = new Date(new Date(order.createdAt).getTime() + 48 * 3600 * 1000);
+  const deliveryDay = deliveryDate.getDate();
+  const deliveryMonthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+  const deliveryMonth = deliveryMonthNames[deliveryDate.getMonth()];
+
+  // تحويل الإجمالي من جنيه مصري إلى ريال سعودي
+  const totalSAR = order.total / exchangeRate;
+
   const rows: [string, string, React.ReactNode][] = [
     [
       'إجمالي قيمة المنتجات',
-      `${order.total.toLocaleString('ar-SA')} ${currencyLabel}`,
+      `${totalSAR.toLocaleString('ar-SA', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} ر.س`,
       <CircleDollarSign key="إجمالي الفاتورة" size={18} color={C4} />,
     ],
     [
@@ -168,12 +188,12 @@ export default function PrintOrderPage() {
     ],
     [
       'تاريخ إصدار الفاتورة',
-      new Date(order.createdAt).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' }),
+      formatDateArabic(order.createdAt),
       <CalendarDays key="تاريخ الفاتورة" size={18} color={C4} />,
     ],
     [
       'موعد التوريد والتسليم',
-      new Date(new Date(order.createdAt).getTime() + 48 * 3600 * 1000).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' }),
+      `${deliveryDay} ${deliveryMonth}`,
       <CalendarClock key="موعد التوريد" size={18} color={C4} />,
     ],
   ];
@@ -361,64 +381,53 @@ export default function PrintOrderPage() {
 
             <div style={{ fontSize: 11.5, color: C2, lineHeight: 1.65 }}>
               {/* قائمة الأصناف والكميات */}
-              {order.items.map((item, i) => (
-                <React.Fragment key={i}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      borderBottom: '1px dashed #d1fae5',
-                      paddingBottom: 2,
-                      marginBottom: 2,
-                    }}
-                  >
-                    <span
+              {order.items.map((item, i) => {
+                // تحويل السعر من جنيه مصري إلى ريال سعودي
+                const priceSAR = item.price / exchangeRate;
+                const totalItemSAR = priceSAR * item.qty;
+                
+                return (
+                  <React.Fragment key={i}>
+                    <div
                       style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 4,
-                        color: C1,
-                        fontWeight: 700,
-                        fontSize: 11,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        borderBottom: '1px dashed #d1fae5',
+                        paddingBottom: 4,
+                        marginBottom: 4,
+                        gap: 2,
                       }}
                     >
-                      <Sprout size={16} color={C4} />
-                      الصنف {order.items.length > 1 ? i + 1 : ''}: {item.name}
-                    </span>
-                    <span style={{ fontSize: 11.5, fontWeight: 700 }}>
-                      الكمية: {item.qty} {item.weight ? `(${item.weight})` : 'عبوة'}
-                    </span>
-                  </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      borderBottom: '1px dashed #d1fae5',
-                      paddingBottom: 2,
-                      marginBottom: 2,
-                    }}
-                  >
-                    <span
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 4,
-                        color: C1,
-                        fontWeight: 700,
-                        fontSize: 10.5,
-                      }}
-                    >
-                      <PackageCheck size={16} color={C4} />
-                      سعر الوحدة / الإجمالي:
-                    </span>
-                    <span style={{ fontSize: 11 }}>
-                      {item.price.toLocaleString('ar-SA')} × {item.qty} = {(item.price * item.qty).toLocaleString('ar-SA')} {currencyLabel}
-                    </span>
-                  </div>
-                </React.Fragment>
-              ))}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <Sprout size={16} color={C4} />
+                        <span style={{ color: C1, fontWeight: 700, fontSize: 11 }}>
+                          الصنف {order.items.length > 1 ? i + 1 : ''}:
+                        </span>
+                        <span style={{ fontSize: 11, fontWeight: 600 }}>
+                          {item.name}
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, paddingRight: 20 }}>
+                        <PackageCheck size={14} color={C4} />
+                        <span style={{ color: C1, fontWeight: 700, fontSize: 10.5 }}>
+                          الكمية:
+                        </span>
+                        <span style={{ fontSize: 10.5 }}>
+                          {item.qty} {item.weight ? `(${item.weight})` : 'عبوة'}
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, paddingRight: 20 }}>
+                        <span style={{ color: C1, fontWeight: 700, fontSize: 10.5 }}>
+                          سعر الوحدة / الإجمالي:
+                        </span>
+                        <span style={{ fontSize: 10.5, direction: 'ltr' }}>
+                          {priceSAR.toLocaleString('ar-SA', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} × {item.qty} = {totalItemSAR.toLocaleString('ar-SA', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} ر.س
+                        </span>
+                      </div>
+                    </div>
+                  </React.Fragment>
+                );
+              })}
 
               {/* صفوف الملخص المالي والفاتورة */}
               {rows.map(([label, val, icon]) => (
