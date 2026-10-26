@@ -61,8 +61,9 @@ const productSchema = new mongoose.Schema({
   formula: { type: String },
   category: { type: String, required: true },
   price: { type: Number, required: true },
+  priceSAR: { type: Number },
   priceEGP: { type: Number },
-  currency: { type: String, default: 'EGP' },
+  currency: { type: String, default: 'SAR' },
   weight: { type: String },
   tag: { type: String },
   color: { type: String },
@@ -82,6 +83,10 @@ const FERTILIZER_CATEGORIES = ['أسمدة مركبة', 'أسمدة عضوية',
 
 export async function getFertilizerProducts(): Promise<ProductType[]> {
   try {
+    // مؤقتاً: استخدام FALLBACK_PRODUCTS مباشرة للتيست
+    return FALLBACK_PRODUCTS;
+    
+    /* تم تعطيل الداتا بيز مؤقتاً
     const conn = await connectDB();
     if (!conn) {
       return FALLBACK_PRODUCTS;
@@ -95,10 +100,17 @@ export async function getFertilizerProducts(): Promise<ProductType[]> {
     if (!dbProducts || dbProducts.length === 0) {
       return FALLBACK_PRODUCTS;
     }
+    */
 
+    /* تم تعطيل الداتا بيز مؤقتاً
     // Merge DB records with fallback rich details (usage, dosage, badges)
     return dbProducts.map((p: any) => {
       const match = FALLBACK_PRODUCTS.find(fb => fb.id === p.id || fb.name === p.name);
+      const isSAR = (p.currency === 'SAR') || (match?.currency === 'SAR');
+      const resolvedPrice = isSAR
+        ? (p.priceSAR ?? p.price ?? match?.priceSAR ?? match?.price ?? 1)
+        : (p.priceEGP ?? p.price ?? match?.priceEGP ?? match?.price ?? 0);
+
       return {
         _id: p._id?.toString(),
         id: p.id || match?.id || 1,
@@ -106,9 +118,10 @@ export async function getFertilizerProducts(): Promise<ProductType[]> {
         nameEn: p.nameEn || match?.nameEn || '',
         formula: p.formula || match?.formula || '',
         category: p.category || match?.category || 'أسمدة مركبة',
-        price: p.priceEGP || p.price || match?.price || 0,
-        priceEGP: p.priceEGP || p.price || match?.priceEGP || 0,
-        currency: 'EGP',
+        price: resolvedPrice,
+        priceSAR: p.priceSAR ?? match?.priceSAR ?? (isSAR ? resolvedPrice : undefined),
+        priceEGP: p.priceEGP ?? match?.priceEGP ?? (!isSAR ? resolvedPrice : undefined),
+        currency: p.currency || match?.currency || (isSAR ? 'SAR' : 'EGP'),
         weight: p.weight || match?.weight || '',
         tag: p.tag || match?.tag || '',
         color: p.color || match?.color || '#15803d',
@@ -124,6 +137,7 @@ export async function getFertilizerProducts(): Promise<ProductType[]> {
         dosage: match?.dosage || 'حسب التوصيات المعتمدة للجرعة المحصولية.',
       };
     });
+    */
   } catch (error) {
     console.error('Error fetching fertilizer products from DB:', error);
     return FALLBACK_PRODUCTS;

@@ -86,7 +86,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const totalCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = items.reduce(
-    (sum, item) => sum + (item.product.priceEGP || item.product.price) * item.quantity,
+    (sum, item) => {
+      const isSAR = item.product.currency === 'SAR';
+      const itemPrice = isSAR
+        ? (item.product.priceSAR ?? item.product.price ?? 1)
+        : (item.product.priceEGP ?? item.product.price ?? 0);
+      return sum + itemPrice * item.quantity;
+    },
     0
   );
 

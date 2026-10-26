@@ -24,7 +24,9 @@ export default function ProductCard({ product }: ProductCardProps) {
     setTimeout(() => setAddedRecently(false), 2000);
   };
 
-  const price = product.priceEGP || product.price || 0;
+  const isSAR = product.currency === 'SAR';
+  const price = isSAR ? (product.priceSAR ?? product.price ?? 1) : (product.priceEGP ?? product.price ?? 0);
+  const currencyLabel = isSAR ? 'ر.س' : 'ج.م';
 
   return (
     <>
@@ -113,7 +115,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                   <span className="text-2xl font-black text-emerald-700">
                     {price.toLocaleString()}
                   </span>
-                  <span className="text-xs font-bold text-stone-500">ج.م</span>
+                  <span className="text-xs font-bold text-stone-500">{currencyLabel}</span>
                 </div>
               </div>
               <div className="text-[11px] text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded-md">

@@ -105,7 +105,7 @@ export default function ReturnPolicyPage() {
               </p>
             </div>
             <a
-              href="https://wa.me/201012345678?text=مرحبا،%20أريد%20طلب%20استرجاع/استبدال%20شحنة%20أسمدة"
+              href="https://wa.me/201552456445?text=مرحبا،%20أريد%20طلب%20استرجاع/استبدال%20شحنة%20أسمدة"
               target="_blank"
               rel="noopener noreferrer"
               className="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-bold rounded-xl text-xs sm:text-sm shrink-0 transition flex items-center gap-2"

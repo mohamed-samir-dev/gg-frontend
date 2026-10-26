@@ -19,10 +19,14 @@ export default function CartDrawer() {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    city: 'القاهرة',
+    city: 'الرياض',
     address: '',
     notes: '',
   });
+
+  const isSAR = items.some(i => i.product.currency === 'SAR');
+  const cartCurrency = isSAR ? 'SAR' : 'EGP';
+  const currencyLabel = isSAR ? 'ر.س' : 'ج.م';
 
   if (!isCartOpen) return null;
 
@@ -44,7 +48,8 @@ export default function CartDrawer() {
         phone: formData.phone,
         city: formData.city,
         address: formData.address,
-        country: 'EG',
+        country: isSAR ? 'SA' : 'EG',
+        currency: cartCurrency,
         paymentMethod,
         items: items.map(i => ({
           id: i.product.id,
@@ -96,10 +101,14 @@ export default function CartDrawer() {
 
   const handleWhatsAppOrder = () => {
     const itemsSummary = items
-      .map(i => `• ${i.product.name} (${i.product.weight}) × ${i.quantity} = ${(i.product.priceEGP || i.product.price) * i.quantity} ج.م`)
+      .map(i => {
+        const itemP = i.product.currency === 'SAR' ? (i.product.priceSAR ?? i.product.price) : (i.product.priceEGP ?? i.product.price);
+        const itemCurr = i.product.currency === 'SAR' ? 'ر.س' : 'ج.م';
+        return `• ${i.product.name} (${i.product.weight}) × ${i.quantity} = ${itemP * i.quantity} ${itemCurr}`;
+      })
       .join('%0A');
-    const msg = `مرحباً جرين لاين للأسمدة الزراعية،%0Aأود تأكيد طلب الأسمدة التالي:%0A${itemsSummary}%0A%0A*الإجمالي:* ${totalPrice} ج.م%0Aالاسم: ${encodeURIComponent(formData.name || 'عميل جرين لاين')}%0Aالهاتف: ${encodeURIComponent(formData.phone || '')}%0Aالعنوان: ${encodeURIComponent(formData.address || '')}`;
-    window.open(`https://wa.me/201012345678?text=${msg}`, '_blank');
+    const msg = `مرحباً جرين لاين للأسمدة الزراعية،%0Aأود تأكيد طلب الأسمدة التالي:%0A${itemsSummary}%0A%0A*الإجمالي:* ${totalPrice} ${currencyLabel}%0Aالاسم: ${encodeURIComponent(formData.name || 'عميل جرين لاين')}%0Aالهاتف: ${encodeURIComponent(formData.phone || '')}%0Aالعنوان: ${encodeURIComponent(formData.address || '')}`;
+    window.open(`https://wa.me/201552456445?text=${msg}`, '_blank');
   };
 
   return (
@@ -258,25 +267,53 @@ export default function CartDrawer() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">المحافظة *</label>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">المحافظة / المدينة *</label>
                     <select
                       value={formData.city}
                       onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                     >
-                      <option>القاهرة</option>
-                      <option>الجيزة</option>
-                      <option>البحيرة</option>
-                      <option>الشرقية</option>
-                      <option>الدقهلية</option>
-                      <option>الإسكندرية</option>
-                      <option>الإسماعيلية</option>
-                      <option>النوبارية ووادى النطرون</option>
-                      <option>المنيا</option>
-                      <option>أسيوط</option>
-                      <option>سوهاج</option>
-                      <option>قنا والأقصر</option>
-                      <option>محافظة أخرى</option>
+                      {/* مصر */}
+                      <optgroup label="🇪🇬 مصر">
+                        <option>القاهرة</option>
+                        <option>الجيزة</option>
+                        <option>البحيرة</option>
+                        <option>الشرقية</option>
+                        <option>الدقهلية</option>
+                        <option>الإسكندرية</option>
+                        <option>الإسماعيلية</option>
+                        <option>النوبارية ووادى النطرون</option>
+                        <option>المنيا</option>
+                        <option>أسيوط</option>
+                        <option>سوهاج</option>
+                        <option>قنا والأقصر</option>
+                        <option>محافظة مصرية أخرى</option>
+                      </optgroup>
+                      {/* السعودية */}
+                      <optgroup label="🇸🇦 السعودية">
+                        <option>الرياض</option>
+                        <option>جدة</option>
+                        <option>مكة المكرمة</option>
+                        <option>المدينة المنورة</option>
+                        <option>الدمام</option>
+                        <option>الخبر</option>
+                        <option>الظهران</option>
+                        <option>أبها</option>
+                        <option>تبوك</option>
+                        <option>القصيم - بريدة</option>
+                        <option>حائل</option>
+                        <option>الطائف</option>
+                        <option>الجوف - سكاكا</option>
+                        <option>جازان</option>
+                        <option>نجران</option>
+                        <option>الباحة</option>
+                        <option>ينبع</option>
+                        <option>الأحساء - الهفوف</option>
+                        <option>القطيف</option>
+                        <option>عرعر</option>
+                        <option>خميس مشيط</option>
+                        <option>مدينة سعودية أخرى</option>
+                      </optgroup>
                     </select>
                   </div>
                   <div>
@@ -284,7 +321,7 @@ export default function CartDrawer() {
                     <input
                       type="text"
                       required
-                      placeholder="مثال: كوم حمادة"
+                      placeholder={isSAR ? "مثال: حي النخيل" : "مثال: كوم حمادة"}
                       value={formData.address}
                       onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
@@ -306,7 +343,7 @@ export default function CartDrawer() {
                 <div className="pt-2 border-t border-gray-100">
                   <div className="flex justify-between items-center text-sm font-bold text-gray-800 mb-3">
                     <span>إجمالي القيمة:</span>
-                    <span className="text-emerald-700 text-lg">{totalPrice.toLocaleString()} ج.م</span>
+                    <span className="text-emerald-700 text-lg">{totalPrice.toLocaleString()} {currencyLabel}</span>
                   </div>
                   <button
                     type="submit"
@@ -354,7 +391,7 @@ export default function CartDrawer() {
                       <h4 className="text-sm font-bold text-gray-900 truncate">{item.product.name}</h4>
                       <p className="text-xs text-gray-500 truncate">{item.product.formula} · {item.product.weight}</p>
                       <div className="text-sm font-bold text-emerald-700 mt-1">
-                        {(item.product.priceEGP || item.product.price).toLocaleString()} ج.م
+                        {(item.product.currency === 'SAR' ? (item.product.priceSAR ?? item.product.price) : (item.product.priceEGP ?? item.product.price)).toLocaleString()} {item.product.currency === 'SAR' ? 'ر.س' : 'ج.م'}
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-2">
@@ -392,7 +429,7 @@ export default function CartDrawer() {
             <div className="p-4 sm:p-6 bg-gray-50 border-t border-gray-200 space-y-3">
               <div className="flex justify-between items-center text-sm text-gray-600">
                 <span>إجمالي المنتجات ({items.reduce((s, i) => s + i.quantity, 0)} عبوة):</span>
-                <span className="font-bold text-gray-900">{totalPrice.toLocaleString()} ج.م</span>
+                <span className="font-bold text-gray-900">{totalPrice.toLocaleString()} {currencyLabel}</span>
               </div>
               <div className="flex justify-between items-center text-xs text-emerald-700">
                 <span>الشحن والتوصيل للمزرعة:</span>
@@ -400,7 +437,7 @@ export default function CartDrawer() {
               </div>
               <div className="pt-2 border-t border-gray-200 flex justify-between items-center text-base font-extrabold text-gray-900">
                 <span>الإجمالي التقريبي:</span>
-                <span className="text-xl text-emerald-800">{totalPrice.toLocaleString()} ج.م</span>
+                <span className="text-xl text-emerald-800">{totalPrice.toLocaleString()} {currencyLabel}</span>
               </div>
               <button
                 onClick={() => setIsCheckingOut(true)}

@@ -21,7 +21,7 @@ export default function ContactPage() {
 
   const handleWhatsAppDirect = () => {
     const msg = `مرحباً جرين لاين للأسمدة الزراعية،%0Aاسمي: ${encodeURIComponent(formData.name || 'عميل')}%0Aالمحافظة: ${encodeURIComponent(formData.city)}%0Aالرسالة: ${encodeURIComponent(formData.message || 'أريد استشارة بخصوص الأسمدة')}`;
-    window.open(`https://wa.me/201012345678?text=${msg}`, '_blank');
+    window.open(`https://wa.me/201552456445?text=${msg}`, '_blank');
   };
 
   return (
@@ -57,7 +57,7 @@ export default function ContactPage() {
 
               <div className="space-y-5">
                 <a
-                  href="tel:+201012345678"
+                  href="tel:+201552456445"
                   className="flex items-start gap-4 p-4 rounded-2xl bg-stone-50 hover:bg-emerald-50 transition border border-stone-100 group"
                 >
                   <div className="p-3 bg-emerald-100 text-emerald-700 rounded-xl group-hover:bg-emerald-600 group-hover:text-white transition">
@@ -65,13 +65,13 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h4 className="text-xs text-stone-400 font-bold">الهاتف والمبيعات</h4>
-                    <p className="text-sm font-black text-stone-800" dir="ltr">01012345678</p>
+                    <p className="text-sm font-black text-stone-800" dir="ltr">01552456445</p>
                     <span className="text-[11px] text-emerald-600 font-semibold">متاح للاتصال الفوري</span>
                   </div>
                 </a>
 
                 <a
-                  href="https://wa.me/201012345678"
+                  href="https://wa.me/201552456445"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-start gap-4 p-4 rounded-2xl bg-stone-50 hover:bg-green-50 transition border border-stone-100 group"
@@ -81,7 +81,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h4 className="text-xs text-stone-400 font-bold">واتساب الاستشارات والطلبات</h4>
-                    <p className="text-sm font-black text-stone-800" dir="ltr">01012345678</p>
+                    <p className="text-sm font-black text-stone-800" dir="ltr">01552456445</p>
                     <span className="text-[11px] text-green-600 font-semibold">رد سريع على مدار اليوم</span>
                   </div>
                 </a>
@@ -92,8 +92,8 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h4 className="text-xs text-stone-400 font-bold">البريد الإلكتروني</h4>
-                    <p className="text-sm font-black text-stone-800">sales@greenline-fertilizers.com</p>
-                    <span className="text-[11px] text-stone-500">للمراسلات الرسمية والمناقصات</span>
+                    <a href="mailto:loutfallaasfora@gmail.com" className="text-sm font-black text-stone-800 hover:text-emerald-700 transition">loutfallaasfora@gmail.com</a>
+                    <span className="text-[11px] text-stone-500 block">للمراسلات الرسمية والمناقصات</span>
                   </div>
                 </div>
 

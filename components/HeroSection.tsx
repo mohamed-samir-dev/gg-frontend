@@ -75,7 +75,7 @@ export default function HeroSection() {
               </Link>
 
               <a
-                href="https://wa.me/201012345678?text=مرحبا%20جرين%20لاين،%20أريد%20طلب%20أسمدة%20لمزرعتي"
+                href="https://wa.me/201552456445?text=مرحبا%20جرين%20لاين،%20أريد%20طلب%20أسمدة%20لمزرعتي"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full sm:w-auto px-6 py-4 bg-stone-800/80 hover:bg-stone-800 text-white font-bold rounded-2xl border border-stone-700/80 transition flex items-center justify-center gap-2 text-sm"

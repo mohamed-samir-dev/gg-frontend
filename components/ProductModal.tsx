@@ -14,11 +14,13 @@ interface ProductModalProps {
 
 export default function ProductModal({ product, onClose }: ProductModalProps) {
   const { addToCart } = useCart();
-  const price = product.priceEGP || product.price || 0;
+  const isSAR = product.currency === 'SAR';
+  const price = isSAR ? (product.priceSAR ?? product.price ?? 1) : (product.priceEGP ?? product.price ?? 0);
+  const currencyLabel = isSAR ? 'ر.س' : 'ج.م';
 
   const handleWhatsAppInquiry = () => {
     const msg = `مرحباً، أستفسر بخصوص سماد "${product.name}" (${product.formula}) - عبوة ${product.weight}. هل متوفر شحن لمزرعتي؟`;
-    window.open(`https://wa.me/201012345678?text=${encodeURIComponent(msg)}`, '_blank');
+    window.open(`https://wa.me/201552456445?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
   return (
@@ -106,7 +108,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                   <span className="text-xs text-stone-400 block font-semibold">سعر الشيكارة / العبوة</span>
                   <div className="flex items-baseline gap-1">
                     <span className="text-3xl font-black text-emerald-700">{price.toLocaleString()}</span>
-                    <span className="text-sm font-bold text-stone-500">ج.م</span>
+                    <span className="text-sm font-bold text-stone-500">{currencyLabel}</span>
                   </div>
                 </div>
                 <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">

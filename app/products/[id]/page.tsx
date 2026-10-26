@@ -173,7 +173,9 @@ export default async function ProductDetailPage({ params }: Props) {
                     <h4 className="text-sm font-bold text-stone-900 truncate mt-1">{rel.name}</h4>
                     <p className="text-xs text-stone-500">{rel.formula}</p>
                     <div className="flex items-center justify-between mt-2">
-                      <span className="text-sm font-black text-emerald-700">{(rel.priceEGP || rel.price).toLocaleString()} ج.م</span>
+                      <span className="text-sm font-black text-emerald-700">
+                        {(rel.currency === 'SAR' ? (rel.priceSAR ?? rel.price) : (rel.priceEGP ?? rel.price)).toLocaleString()} {rel.currency === 'SAR' ? 'ر.س' : 'ج.م'}
+                      </span>
                       <Link href={`/products/${rel.id}`} className="text-xs text-stone-600 hover:text-emerald-700 font-bold underline">
                         التفاصيل
                       </Link>

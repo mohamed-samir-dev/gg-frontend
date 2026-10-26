@@ -33,7 +33,7 @@ export default function ConsultationCTA() {
 
           <div className="flex flex-col sm:flex-row lg:flex-col gap-3 w-full sm:w-auto shrink-0">
             <a
-              href="https://wa.me/201012345678?text=مرحبا%20جرين%20لاين،%20أريد%20طلب%20عرض%20سعر%20واستشارة%20لمزرعتي"
+              href="https://wa.me/201552456445?text=مرحبا%20جرين%20لاين،%20أريد%20طلب%20عرض%20سعر%20واستشارة%20لمزرعتي"
               target="_blank"
               rel="noopener noreferrer"
               className="px-6 py-4 bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-black rounded-2xl shadow-lg transition flex items-center justify-center gap-2.5 text-sm"
@@ -43,11 +43,11 @@ export default function ConsultationCTA() {
             </a>
 
             <a
-              href="tel:+201012345678"
+              href="tel:+201552456445"
               className="px-6 py-3.5 bg-stone-800/80 hover:bg-stone-800 text-white font-bold rounded-2xl border border-stone-700 transition flex items-center justify-center gap-2.5 text-xs text-center"
             >
               <Phone className="w-4 h-4 text-emerald-400" />
-              <span>اتصال مباشر: 01012345678</span>
+              <span>اتصال مباشر: 01552456445</span>
             </a>
           </div>
         </div>

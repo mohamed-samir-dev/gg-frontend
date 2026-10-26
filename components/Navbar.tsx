@@ -32,13 +32,13 @@ export default function Navbar() {
           <div className="flex items-center gap-4 text-xs">
             <span className="hidden sm:inline">شحن مباشر للمزارع بجميع المحافظات</span>
             <a
-              href="https://wa.me/201012345678"
+              href="https://wa.me/201552456445"
               target="_blank"
               rel="noopener noreferrer"
               className="text-emerald-300 hover:text-white font-bold flex items-center gap-1"
             >
               <Phone className="w-3 h-3" />
-              واتساب المبيعات والاستشارات: 01012345678
+              واتساب المبيعات والاستشارات: 01552456445
             </a>
           </div>
         </div>
@@ -86,7 +86,7 @@ export default function Navbar() {
           {/* Action Buttons */}
           <div className="flex items-center gap-3">
             <a
-              href="https://wa.me/201012345678?text=مرحبا%20جرين%20لاين،%20أريد%20استشارة%20زراعية%20بخصوص%20الأسمدة"
+              href="https://wa.me/201552456445?text=مرحبا%20جرين%20لاين،%20أريد%20استشارة%20زراعية%20بخصوص%20الأسمدة"
               target="_blank"
               rel="noopener noreferrer"
               className="hidden sm:flex items-center gap-2 px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl text-xs font-bold border border-emerald-200 transition"
@@ -144,13 +144,13 @@ export default function Navbar() {
           })}
           <div className="pt-3 border-t border-gray-100 flex flex-col gap-2">
             <a
-              href="https://wa.me/201012345678"
+              href="https://wa.me/201552456445"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full py-2.5 px-4 bg-emerald-600 text-white text-center rounded-xl font-bold text-sm flex items-center justify-center gap-2"
             >
               <Phone className="w-4 h-4" />
-              تواصل عبر واتساب: 01012345678
+              تواصل عبر واتساب: 01552456445
             </a>
           </div>
         </div>

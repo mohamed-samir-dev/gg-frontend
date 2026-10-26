@@ -90,7 +90,7 @@ export default function CropAdvisory() {
 
         <div className="mt-12 text-center">
           <a
-            href="https://wa.me/201012345678?text=مرحبا،%20أحتاج%20برنامج%20تسميد%20مخصص%20لمزرعتي"
+            href="https://wa.me/201552456445?text=مرحبا،%20أحتاج%20برنامج%20تسميد%20مخصص%20لمزرعتي"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 bg-stone-900 hover:bg-emerald-800 text-white font-bold text-xs sm:text-sm rounded-xl transition"

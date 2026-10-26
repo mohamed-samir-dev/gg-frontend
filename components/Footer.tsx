@@ -62,9 +62,6 @@ export default function Footer() {
             <p className="text-sm text-stone-400 leading-relaxed max-w-sm">
               شركة جرين لاين المتخصصة في تجارة وتوريد الأسمدة الزراعية والمخصبات ومحسنات التربة والعناصر الصغرى في مصر. نلتزم بأعلى معايير النقاوة لرفع إنتاجية المحاصيل وخدمة المزارع الاستثمارية والصغيرة.
             </p>
-            <div className="pt-2 text-xs text-emerald-400 font-semibold">
-              سجل تجاري وبطاقة ضريبية معتمدة · منتجات مرخصة
-            </div>
           </div>
 
           {/* Quick links */}
@@ -99,11 +96,11 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span className="text-xs" dir="ltr">+20 101 234 5678</span>
+                <a href="tel:+201552456445" className="text-xs hover:text-emerald-400 transition" dir="ltr">+20 155 245 6445</a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span className="text-xs">sales@greenline-fertilizers.com</span>
+                <a href="mailto:loutfallaasfora@gmail.com" className="text-xs hover:text-emerald-400 transition">loutfallaasfora@gmail.com</a>
               </li>
             </ul>
           </div>

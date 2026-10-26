@@ -14,7 +14,10 @@ export default function ProductDetailClient({ product }: Props) {
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
 
-  const price = product.priceEGP || product.price || 0;
+  const isSAR = product.currency === 'SAR';
+  const price = isSAR ? (product.priceSAR ?? product.price ?? 1) : (product.priceEGP ?? product.price ?? 0);
+  const currencyLabel = isSAR ? 'ر.س' : 'ج.م';
+  const currencyFull = isSAR ? 'ريال سعودي' : 'جنيه مصري';
   const totalPrice = price * quantity;
 
   const handleAdd = () => {
@@ -24,8 +27,8 @@ export default function ProductDetailClient({ product }: Props) {
   };
 
   const handleWhatsApp = () => {
-    const msg = `مرحباً، أود طلب سماد "${product.name}" (${product.formula})%0Aالكمية المطلوبة: ${quantity} عبوة (${product.weight})%0Aالإجمالي: ${totalPrice.toLocaleString()} ج.م%0Aيرجى الإفادة بإمكانية الشحن للمزرعة.`;
-    window.open(`https://wa.me/201012345678?text=${msg}`, '_blank');
+    const msg = `مرحباً، أود طلب سماد "${product.name}" (${product.formula})%0Aالكمية المطلوبة: ${quantity} عبوة (${product.weight})%0Aالإجمالي: ${totalPrice.toLocaleString()} ${currencyLabel}%0Aيرجى الإفادة بإمكانية الشحن للمزرعة.`;
+    window.open(`https://wa.me/201552456445?text=${msg}`, '_blank');
   };
 
   return (
@@ -40,14 +43,14 @@ export default function ProductDetailClient({ product }: Props) {
             <span className="text-3xl sm:text-4xl font-black text-emerald-800">
               {price.toLocaleString()}
             </span>
-            <span className="text-sm font-bold text-stone-600">جنيه مصري</span>
+            <span className="text-sm font-bold text-stone-600">{currencyFull}</span>
           </div>
         </div>
 
         {quantity > 1 && (
           <div className="bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-200 text-right">
             <span className="text-[11px] text-stone-500 block">إجمالي {quantity} عبوات:</span>
-            <span className="text-lg font-black text-emerald-800">{totalPrice.toLocaleString()} ج.م</span>
+            <span className="text-lg font-black text-emerald-800">{totalPrice.toLocaleString()} {currencyLabel}</span>
           </div>
         )}
       </div>
@@ -91,7 +94,7 @@ export default function ProductDetailClient({ product }: Props) {
           ) : (
             <>
               <ShoppingCart className="w-5 h-5" />
-              <span>أضف إلى سلة المشتريات ({totalPrice.toLocaleString()} ج.م)</span>
+              <span>أضف إلى سلة المشتريات ({totalPrice.toLocaleString()} {currencyLabel})</span>
             </>
           )}
         </button>
