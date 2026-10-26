@@ -36,22 +36,15 @@ export default function InvoicePreviewPage() {
     customer: 'ahmed',
     whatsapp: '+966 50 123 4567',
     address: 'الرياض - حي النخيل - شارع الملك عبدالعزيز',
-    city: 'الرياض',
     invoiceNumber: 'INV-49db4',
     paymentMethod: 'الدفع عند الاستلام',
     paymentStatus: 'مستحق عند الاستلام والتسليم',
     items: [
       {
-        name: 'سماد NPK 20-20-20 مركب',
-        priceEGP: 1468, // السعر بالجنيه المصري
-        qty: 5,
-        weight: '1 كجم',
-      },
-      {
-        name: 'سماد يوريا 46%',
-        priceEGP: 734, // السعر بالجنيه المصري
-        qty: 10,
-        weight: '500 جرام',
+        name: 'جرين جرو المتوازن - BALANCED NUTRITION',
+        priceEGP: 14680, // السعر بالجنيه المصري (1000 ريال × 14.68)
+        qty: 1,
+        weight: '',
       },
     ],
   };
@@ -170,16 +163,6 @@ export default function InvoicePreviewPage() {
           boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
         }}
       >
-        {/* عنوان الفاتورة والعقد */}
-        <div style={{ textAlign: 'center', marginBottom: 6 }}>
-          <div style={{ fontSize: 20, fontWeight: 900, color: '#064e3b', letterSpacing: 1.5 }}>
-            فاتورة مبيعات وأمر توريد رسمي
-          </div>
-          <div style={{ fontSize: 12.5, color: '#065f46', marginTop: 2, fontWeight: 700 }}>
-            بين شركة جرين لاين للأسمدة والمخصبات <span style={{ color: C4, fontWeight: 800 }}>(المورّد)</span>
-            &nbsp;والعميل <span style={{ color: C4, fontWeight: 800 }}>(المستلم / المشتري)</span>
-          </div>
-        </div>
 
         {/* صندوقا البيانات + صورة الاتفاق والشعار بالمنتصف */}
         <div style={{ display: 'flex', alignItems: 'stretch', gap: 8, marginBottom: 6, position: 'relative' }}>
@@ -215,10 +198,6 @@ export default function InvoicePreviewPage() {
               <div style={{ wordBreak: 'break-word' }}>
                 <span style={{ color: C1, fontWeight: 700 }}>رقم الجوال: </span>
                 <span dir="ltr">{order.whatsapp}</span>
-              </div>
-              <div style={{ wordBreak: 'break-word' }}>
-                <span style={{ color: C1, fontWeight: 700 }}>المدينة / المحافظة: </span>
-                {order.city}
               </div>
               <div style={{ wordBreak: 'break-word' }}>
                 <span style={{ color: C1, fontWeight: 700 }}>العنوان بالتفصيل: </span>
