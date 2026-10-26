@@ -2,6 +2,89 @@ import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import { OrderModel, generateInvoiceNumber } from '@/lib/order-model';
 
+
+// ───────────────────────────────────────────────
+// Kashier session helper (مباشرةً في Next.js API)
+// ───────────────────────────────────────────────
+async function createKashierSession(orderData: {
+  orderId: string;
+  amount: number;
+  currency: string;
+  customer?: { name?: string; phone?: string; email?: string };
+}) {
+  const merchantId = process.env.KASHIER_MERCHANT_ID;
+  const apiKey     = process.env.KASHIER_API_KEY;
+  const secretKey  = process.env.KASHIER_SECRET_KEY;
+  const mode       = process.env.KASHIER_MODE || 'live';
+  let   appUrl     = process.env.APP_URL || 'https://www.lamsa-smartt.com';
+
+  if (appUrl.includes('localhost') || appUrl.includes('127.0.0.1')) {
+    appUrl = 'https://www.lamsa-smartt.com';
+  }
+
+  if (!merchantId || !apiKey || !secretKey) {
+    throw new Error('Kashier credentials not configured');
+  }
+
+  const gatewayCurrency = orderData.currency || 'EGP';
+  const gatewayAmount   = orderData.amount.toFixed(2);
+  const currencyLabel   = gatewayCurrency === 'SAR' ? 'ريال سعودي' : 'جنيه مصري';
+
+  const apiUrl = mode === 'live'
+    ? 'https://api.kashier.io/v3/payment/sessions'
+    : 'https://test-api.kashier.io/v3/payment/sessions';
+
+  const payload = {
+    merchantId,
+    amount: gatewayAmount,
+    currency: gatewayCurrency,
+    order: orderData.orderId,
+    type: 'one-time',
+    merchantRedirect: `${appUrl}/?paymentStatus=SUCCESS&orderId=${orderData.orderId}`,
+    display: 'ar',
+    allowedMethods: 'card,wallet',
+    description: `طلب ${orderData.orderId} - جرين لاين (${gatewayAmount} ${currencyLabel})`,
+    customer: {
+      email: orderData.customer?.email ||
+             `customer-${orderData.customer?.phone || Date.now()}@temp.kashier.local`,
+      reference: orderData.customer?.phone || String(Date.now()),
+    },
+    metaData: {
+      ...(orderData.customer?.name  && { customerName: orderData.customer.name }),
+      ...(orderData.customer?.phone && { phone: orderData.customer.phone }),
+      storeCurrency:   gatewayCurrency,
+      storeAmount:     gatewayAmount,
+      gatewayCurrency: gatewayCurrency,
+      gatewayAmount:   gatewayAmount,
+    },
+  };
+
+  const response = await fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+      'Authorization': secretKey,
+      'api-key':        apiKey,
+      'Content-Type':  'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    let errData: any;
+    try { errData = JSON.parse(errText); } catch { errData = { message: errText }; }
+    throw new Error(errData.message || 'Kashier API error');
+  }
+
+  const sessionData = await response.json();
+  return {
+    sessionUrl: sessionData.sessionUrl as string,
+    sessionId:  (sessionData._id || sessionData.sessionId) as string,
+    currency:   gatewayCurrency,
+    amount:     gatewayAmount,
+  };
+}
+
 export async function POST(request: Request) {
   try {
     const data = await request.json();
@@ -95,6 +178,56 @@ export async function POST(request: Request) {
       notes: customerNotes,
     });
 
+    // ── Kashier: إنشاء جلسة الدفع إذا اختار المستخدم الدفع بالبطاقة ──
+    if (paymentMethod === 'kashier') {
+      try {
+        const kashierSession = await createKashierSession({
+          orderId: newOrder.orderId,
+          amount:  finalTotal,
+          currency,
+          customer: {
+            name:  customerName,
+            phone: customerPhone,
+            email: `customer-${customerPhone}@temp.kashier.local`,
+          },
+        });
+
+        if (kashierSession.sessionUrl) {
+          // حفظ بيانات الجلسة في قاعدة البيانات
+          await OrderModel.findOneAndUpdate(
+            { orderId: newOrder.orderId },
+            {
+              'payment.kashierSessionId': kashierSession.sessionId,
+              'payment.kashierCurrency': kashierSession.currency,
+              'payment.kashierAmount':   parseFloat(kashierSession.amount),
+            }
+          );
+
+          return NextResponse.json({
+            success: true,
+            status:  'pending_payment',
+            orderId: newOrder.orderId,
+            invoiceNumber: newOrder.invoice.invoiceNumber,
+            order: newOrder,
+            kashier: {
+              sessionUrl: kashierSession.sessionUrl,
+              sessionId:  kashierSession.sessionId,
+              currency:   kashierSession.currency,
+              amount:     kashierSession.amount,
+            },
+          }, { status: 201 });
+        }
+      } catch (kashierErr: any) {
+        console.error('Kashier session creation error (Next.js API):', kashierErr);
+        // إرجاع خطأ واضح بدل ما نكمل بصمت
+        return NextResponse.json(
+          { error: 'فشل إنشاء جلسة الدفع عبر كاشير: ' + (kashierErr.message || '') },
+          { status: 500 }
+        );
+      }
+    }
+
+    // ── الدفع عند الاستلام أو أي طريقة أخرى ──
     return NextResponse.json({
       success: true,
       message: 'تم استلام طلبك بنجاح وسيتواصل معك مهندس جرين لاين لتأكيد التوصيل',

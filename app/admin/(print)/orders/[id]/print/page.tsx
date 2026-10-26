@@ -152,7 +152,7 @@ export default function PrintOrderPage() {
     return `${day} ${month} ${year}`;
   };
 
-  const deliveryDate = new Date(new Date(order.createdAt).getTime() + 48 * 3600 * 1000);
+  const deliveryDate = new Date(new Date(order.createdAt).getTime() + 15 * 24 * 3600 * 1000);
   const deliveryDay = deliveryDate.getDate();
   const deliveryMonthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
   const deliveryMonth = deliveryMonthNames[deliveryDate.getMonth()];
@@ -273,10 +273,6 @@ export default function PrintOrderPage() {
               <div style={{ wordBreak: 'break-word' }}>
                 <span style={{ color: C1, fontWeight: 700 }}>رقم الجوال: </span>
                 <span dir="ltr">{order.whatsapp}</span>
-              </div>
-              <div style={{ wordBreak: 'break-word' }}>
-                <span style={{ color: C1, fontWeight: 700 }}>المدينة / المحافظة: </span>
-                {order.city || 'الرياض'}
               </div>
               <div style={{ wordBreak: 'break-word' }}>
                 <span style={{ color: C1, fontWeight: 700 }}>العنوان بالتفصيل: </span>
