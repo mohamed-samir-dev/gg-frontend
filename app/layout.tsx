@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Cairo } from 'next/font/google';
 import './globals.css';
 import { CartProvider } from '@/lib/cart-context';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import CartDrawer from '@/components/CartDrawer';
 
 const cairo = Cairo({
@@ -30,9 +32,11 @@ export default function RootLayout({
     <html lang="ar" dir="rtl" className={cairo.variable}>
       <body className="font-sans antialiased bg-stone-50 text-stone-900 min-h-screen flex flex-col selection:bg-emerald-200 selection:text-emerald-900">
         <CartProvider>
+          <Navbar />
           <main className="flex-1">
             {children}
           </main>
+          <Footer />
           <CartDrawer />
         </CartProvider>
       </body>

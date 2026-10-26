@@ -5,7 +5,10 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useCart } from '@/lib/cart-context';
 import { formatProductPrice } from '@/lib/products-data';
-import { X, Plus, Minus, Trash2, ShoppingBag, ArrowLeft, CheckCircle2, Phone, MapPin, User, Send, CreditCard, Truck } from 'lucide-react';
+import { X, Plus, Minus, Trash2, ShoppingBag, ArrowLeft, CheckCircle2, Phone, MapPin, User, Send, CreditCard, Truck, Globe } from 'lucide-react';
+
+// سعر تحويل الجنيه المصري للريال السعودي
+const EGP_TO_SAR_RATE = 0.067; // 1 EGP ≈ 0.067 SAR  (سعر مرجعي - عدّله حسب سعر الصرف الحالي)
 
 // عنوان الـ Backend الحقيقي (Express) - من متغير البيئة
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
@@ -24,11 +27,18 @@ export default function CartDrawer() {
     phone: '',
     address: '',
     notes: '',
+    country: 'EG', // 'EG' = مصر، 'SA' = السعودية
   });
 
-  const isSAR = items.some(i => i.product.currency === 'SAR');
+  // تحديد العملة بناءً على اختيار الدولة (يُقدَّم على currency المنتج)
+  const isSAR = formData.country === 'SA' || items.some(i => i.product.currency === 'SAR');
   const cartCurrency = isSAR ? 'SAR' : 'EGP';
-  const currencyLabel = isSAR ? 'ر.س' : 'ج.م';
+  const currencyLabel  = isSAR ? 'ر.س' : 'ج.م';
+
+  // حساب الإجمالي بالعملة المختارة
+  const displayTotal = isSAR && !items.some(i => i.product.currency === 'SAR')
+    ? parseFloat((totalPrice * EGP_TO_SAR_RATE).toFixed(2))
+    : totalPrice;
 
   if (pathname?.startsWith('/admin')) return null;
   if (!isCartOpen) return null;
@@ -46,20 +56,29 @@ export default function CartDrawer() {
       const idempotencyKey = `order-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
       // إعداد بيانات الطلب المتكاملة
+      const sarConversion = isSAR && !items.some(i => i.product.currency === 'SAR');
+      const finalTotal = sarConversion
+        ? parseFloat((totalPrice * EGP_TO_SAR_RATE).toFixed(2))
+        : totalPrice;
+
       const orderPayload = {
         name: formData.name,
         phone: formData.phone,
         city: '', // سيتم استخراجها من العنوان أو تركها فارغة
         address: formData.address,
-        country: isSAR ? 'SA' : 'EG',
+        country: formData.country,
         currency: cartCurrency,
         paymentMethod,
         notes: formData.notes,
-        totalAmount: totalPrice,
+        totalAmount: finalTotal,
         items: items.map(i => ({
           id: i.product.id,
           name: i.product.name,
-          price: i.product.currency === 'SAR' ? (i.product.priceSAR ?? i.product.price) : (i.product.priceEGP ?? i.product.price),
+          price: sarConversion
+            ? parseFloat((( i.product.priceEGP ?? i.product.price) * EGP_TO_SAR_RATE).toFixed(2))
+            : i.product.currency === 'SAR'
+              ? (i.product.priceSAR ?? i.product.price)
+              : (i.product.priceEGP ?? i.product.price),
           weight: i.product.weight,
           qty: i.quantity,
         })),
@@ -216,6 +235,42 @@ export default function CartDrawer() {
                   <span className="text-sm font-semibold">العودة للسلة</span>
                 </div>
 
+                {/* اختيار الدولة */}
+                <div className="space-y-2">
+                  <p className="text-xs font-bold text-gray-700 flex items-center gap-1">
+                    <Globe className="w-3.5 h-3.5" /> دولة التوصيل
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, country: 'EG' })}
+                      className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border-2 text-xs font-semibold transition ${
+                        formData.country === 'EG'
+                          ? 'border-emerald-600 bg-emerald-50 text-emerald-800'
+                          : 'border-gray-200 bg-white text-gray-600 hover:border-emerald-300'
+                      }`}
+                    >
+                      <span className="text-base">🇪🇬</span> مصر (ج.م)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, country: 'SA' })}
+                      className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border-2 text-xs font-semibold transition ${
+                        formData.country === 'SA'
+                          ? 'border-blue-600 bg-blue-50 text-blue-800'
+                          : 'border-gray-200 bg-white text-gray-600 hover:border-blue-300'
+                      }`}
+                    >
+                      <span className="text-base">🇸🇦</span> السعودية (ر.س)
+                    </button>
+                  </div>
+                  {formData.country === 'SA' && (
+                    <p className="text-xs text-blue-700 bg-blue-50 px-3 py-2 rounded-lg">
+                      💱 سيتم تحويل السعر تلقائياً للريال السعودي عند الدفع.
+                    </p>
+                  )}
+                </div>
+
                 {/* اختيار طريقة الدفع */}
                 <div className="space-y-2">
                   <p className="text-xs font-bold text-gray-700">طريقة الدفع</p>
@@ -317,7 +372,12 @@ export default function CartDrawer() {
                 <div className="pt-2 border-t border-gray-100">
                   <div className="flex justify-between items-center text-sm font-bold text-gray-800 mb-3">
                     <span>إجمالي القيمة:</span>
-                    <span className="text-emerald-700 text-lg">{formatProductPrice(totalPrice)} {currencyLabel}</span>
+                    <div className="text-right">
+                      <span className="text-emerald-700 text-lg">{formatProductPrice(displayTotal)} {currencyLabel}</span>
+                      {formData.country === 'SA' && !items.some(i => i.product.currency === 'SAR') && (
+                        <p className="text-xs text-gray-400 font-normal">{formatProductPrice(totalPrice)} ج.م</p>
+                      )}
+                    </div>
                   </div>
                   <button
                     type="submit"
@@ -403,7 +463,12 @@ export default function CartDrawer() {
             <div className="p-4 sm:p-6 bg-gray-50 border-t border-gray-200 space-y-3">
               <div className="flex justify-between items-center text-sm text-gray-600">
                 <span>إجمالي المنتجات ({items.reduce((s, i) => s + i.quantity, 0)} عبوة):</span>
-                <span className="font-bold text-gray-900">{formatProductPrice(totalPrice)} {currencyLabel}</span>
+                <div className="text-right">
+                  <span className="font-bold text-gray-900">{formatProductPrice(displayTotal)} {currencyLabel}</span>
+                  {formData.country === 'SA' && !items.some(i => i.product.currency === 'SAR') && (
+                    <p className="text-xs text-gray-400">{formatProductPrice(totalPrice)} ج.م</p>
+                  )}
+                </div>
               </div>
               <div className="flex justify-between items-center text-xs text-emerald-700">
                 <span>الشحن والتوصيل للمزرعة:</span>
@@ -411,7 +476,12 @@ export default function CartDrawer() {
               </div>
               <div className="pt-2 border-t border-gray-200 flex justify-between items-center text-base font-extrabold text-gray-900">
                 <span>الإجمالي التقريبي:</span>
-                <span className="text-xl text-emerald-800">{formatProductPrice(totalPrice)} {currencyLabel}</span>
+                <div className="text-right">
+                  <span className="text-xl text-emerald-800">{formatProductPrice(displayTotal)} {currencyLabel}</span>
+                  {formData.country === 'SA' && !items.some(i => i.product.currency === 'SAR') && (
+                    <p className="text-xs text-gray-400 font-normal">{formatProductPrice(totalPrice)} ج.م</p>
+                  )}
+                </div>
               </div>
               <button
                 onClick={() => setIsCheckingOut(true)}
